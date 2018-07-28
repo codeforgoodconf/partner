@@ -2,6 +2,9 @@
 Utitility methods
 """
 import csv
+from datetime import (
+    datetime
+)
 
 def load_choices(path, reversed=False):
     """ Load choices from a CSV file.
@@ -21,9 +24,10 @@ def load_choices(path, reversed=False):
         reader = csv.reader(csv_file)
         for (symbol, value) in reader:
             if reversed:
-                states.append(value, symbol)
+                choices.append((value, symbol))
             else:
-                states.append(symbol, value)
-    return states
+                choices.append((symbol, value))
+    return choices
 
-def get_current_year
+def get_current_year():
+    return datetime.now().year

@@ -1,4 +1,4 @@
-from django.core.models import IntegerField
+from django.db.models import IntegerField
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 class RangeIntegerField(IntegerField):

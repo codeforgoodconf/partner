@@ -1,6 +1,9 @@
+import os
 from django.db import models
-
+from django.contrib.auth.models import User
 from django.conf import settings
+
+
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils.text import slugify
 
@@ -10,6 +13,10 @@ from partner.fields import (
     PercentageField,
 )
 
+HERE = os.path.abspath(os.path.dirname(__file__))
+STATES_PATH = os.path.join(HERE, 'states.txt')
+
+STATES = load_choices(STATES_PATH, True)
 
 # model.FileField(uploadto=proof_of_agency_status_uh)
 def proof_of_agency_status_uh(instance, filename):
@@ -174,50 +181,51 @@ DESCRIPTION_LENGTH = 4096
 
 class Partner(models.Model):
 
-    DISTRIBUTOR_AGENCY = 'Agency'
-    DISTRIBUTOR_HOSPITAL = 'Hospital'
+    DISTRIBUTOR_AGENCY = 'AG'
+    DISTRIBUTOR_HOSPITAL = 'HO'
     DISTRIBUTOR_TYPES = (
-        ('AG', DISTRIBUTOR_AGENCY),
-        ('HO', DISTRIBUTOR_HOSPITAL),
+        (DISTRIBUTOR_AGENCY, 'Agency'),
+        (DISTRIBUTOR_HOSPITAL, 'Hospital'),
     )
 
-    AT_C3 = '501(c)3'
-    AT_RELIGIOUS_ORGANIZATION = 'Religious Organization'
-    AT_GOVERNMENT_ORGANIZATION = 'Government Organization'
+    AT_501C3 = '50'
+    AT_RELIGIOUS_ORGANIZATION = 'RE'
+    AT_GOVERNMENT_ORGANIZATION = 'GO'
     AGENCY_TYPES = (
-        ('50', AT_C3),
-        ('RE', AT_RELIGIOUS_ORGANIZATION),
-        ('GO', AT_GOVERNMENT_ORGANIZATION),
+        (AT_501C3, '501(c)3'),
+        (AT_RELIGIOUS_ORGANIZATION, 'Religious Organization'),
+        (AT_GOVERNMENT_ORGANIZATION, 'Government Organization'),
     )
 
-    POAS_C3_LETTER = '501(c)3 LETTER'
-    POAS_GOOD_STANDING = 'Letter of Good Standing from Denominational Headquarters'
-    POAS_GOVERNMENT_LETTERHEAD = 'Government Letterhead'
+    POAS_501C3_LETTER = '50'
+    POAS_GOOD_STANDING = 'GS'
+    POAS_GOVERNMENT_LETTERHEAD = 'GL'
+
     PROOF_OF_AGENCY_STATUS_TYPE = (
-        ('50', C3_LETTER),
-        ('LE', GOOD_STANDING),
-        ('GO', ),
+        (POAS_501C3_LETTER, '501(c)3 LETTER'),
+        (POAS_GOOD_STANDING, 'Letter of Good Standing from Denominational Headquarters'),
+        (POAS_GOVERNMENT_LETTERHEAD, 'Government Letterhead'),
     )
 
-    DU_EMERGENCY_SUPPLIES = 'Emergency supplies for families (off site)'
-    DU_HOMELES_SHELTER = 'Homeless shelter'
-    DU_DOMESTIC_VIOLENCE_SHELTER = 'Domestic violence shelter'
-    DU_ONSITE = 'On-site residential program'
-    DU_OUTREACH = 'Outreach'
-    DU_ALCOHOL = 'Alcohol/Drug Recovery'
-    DU_DAYCARE = 'Daycare'
-    DU_FOSTER_CARE = 'Foster Care'
-    DU_OTHER = 'Other'
+    DU_EMERGENCY_SUPPLIES = 'EM'
+    DU_HOMELES_SHELTER = 'HO'
+    DU_DOMESTIC_VIOLENCE_SHELTER = 'DO'
+    DU_ONSITE = 'ON'
+    DU_OUTREACH = 'OU'
+    DU_ALCOHOL = 'AL'
+    DU_DAYCARE = 'DA'
+    DU_FOSTER_CARE = 'FO'
+    DU_OTHER = 'OT'
     DIAPER_USE = (
-       ('EM', DU_EMERGENCY_SUPPLIES),
-       ('HO', DU_HOMELES_SHELTER),
-       ('DO', DU_DOMESTIC_VIOLENCE_SHELTER),
-       ('ON', DU_ONSITE),
-       ('OU', DU_OUTREACH),
-       ('AL', DU_ALCOHOL),
-       ('DA', DU_DAYCARE),
-       ('FO', DU_FOSTER_CARE),
-       ('OT', DU_OTHER),
+       (DU_EMERGENCY_SUPPLIES, 'Emergency supplies for families (off site)'),
+       (DU_HOMELES_SHELTER, 'Homeless shelter'),
+       (DU_DOMESTIC_VIOLENCE_SHELTER, 'Domestic violence shelter'),
+       (DU_ONSITE, 'On-site residential program'),
+       (DU_OUTREACH, 'Outreach'),
+       (DU_ALCOHOL, 'Alcohol/Drug Recovery'),
+       (DU_DAYCARE, 'Daycare'),
+       (DU_FOSTER_CARE, 'Foster Care'),
+       (DU_OTHER, 'Other'),
     )
 
     PICKUP_VOLUNTEERS = 'VO'
@@ -257,20 +265,23 @@ class Partner(models.Model):
         (DS_OTHER, 'Other'),
     )
 
+    user = models.ForeignKey(User, blank=False, null=False,
+                             on_delete=models.CASCADE)
+
     # Angency Information
     name = models.CharField(max_length=2048, null=False, blank=False)
     distributor_type = models.CharField(max_length=2,
                                         choices=DISTRIBUTOR_TYPES)
-    agency_types = models.ChoiceField(max_length=2,
-                                      choices=AGENCY_TYPES)
-    proof_of_agency_status = model.FileField() #  TODO: add file arguments
+    agency_types = models.CharField(max_length=2,
+                                    choices=AGENCY_TYPES)
+    proof_of_agency_status = models.FileField()  # TODO: add file arguments
     proof_of_agency_status_type = models.CharField(max_length=CHOICE_LENGTH,
                                                    choices=PROOF_OF_AGENCY_STATUS_TYPE)
     agency_mission = models.CharField(max_length=DESCRIPTION_LENGTH)
     address_1 = models.CharField(max_length=MEDIUM_LENGTH)
     address_2 = models.CharField(max_length=MEDIUM_LENGTH)
     city = models.CharField(max_length=NAME_LENGTH)
-    state = models.CharField(max_length=2, choices=load_choices('./states.txt'))
+    state = models.CharField(max_length=2, choices=STATES)
     zip_code = models.CharField(max_length=ZIP_LENGTH)
 
     # Media Information
@@ -282,7 +293,7 @@ class Partner(models.Model):
 
     # Agency Stability
 
-    founded = RangeIntegerField(min=1800, max=get_current_year())
+    founded = RangeIntegerField(min=1800, max=2017)
     form_990 = models.FileField()
     program_name = models.CharField(max_length=NAME_LENGTH)
     program_description = models.CharField(max_length=DESCRIPTION_LENGTH)
@@ -301,12 +312,13 @@ class Partner(models.Model):
     program_address2 = models.CharField(max_length=MEDIUM_LENGTH)
     program_city = models.CharField(max_length=NAME_LENGTH)
     program_state = models.CharField(max_length=CHOICE_LENGTH,
-                                     choices=load_choices('./states.txt'))
+                                     choices=STATES)
     program_zip_code = models.CharField(max_length=ZIP_LENGTH)
 
     # Organizational Capacity
 
-    max_serve = models.IntegerField(help_text='Maximum number of people this organization can serve')
+    max_serve = models.IntegerField(help_text=('Maximum number of people '
+                                               'this organization can serve'))
     incorporate_plan = models.CharField(max_length=DESCRIPTION_LENGTH)
     responsible_staff_position = models.BooleanField()
     storage_space = models.BooleanField()
@@ -317,7 +329,7 @@ class Partner(models.Model):
     incmome_requirement_description = models.BooleanField()
     serve_income_circumstances = models.BooleanField()
     income_verification = models.BooleanField()
-    internal_diaper_bank = models.BooleanField() # TODO: Is db=diaper bank?
+    internal_diaper_bank = models.BooleanField()  # TODO: Is db=diaper bank?
     maac = models.BooleanField()
 
     # Ethnic composition of those served
@@ -342,7 +354,7 @@ class Partner(models.Model):
     # Ages served
     ages_served = models.CharField(max_length=MEDIUM_LENGTH)
 
-    #Executive Director
+    # Executive Director
     executive_director_name = models.CharField(max_length=MEDIUM_LENGTH)
     executive_director_phone = PhoneNumberField()
     executive_director_email = models.EmailField()
@@ -366,9 +378,9 @@ class Partner(models.Model):
     more_docs_required = models.CharField(max_length=MEDIUM_LENGTH)
 
     # Sources of Funding
-    funding_sources = models.ChoiceField(max_length=CHOICE_LENGTH,
+    funding_sources = models.CharField(max_length=CHOICE_LENGTH,
                                          choices=FUNDING_SOURCES)
-    sources_of_diapers = models.ChoiceField(max_length=CHOICE_LENGTH,
+    sources_of_diapers = models.CharField(max_length=CHOICE_LENGTH,
                                             choices=DIAPER_SOURCES)
     diaper_budget = models.BooleanField()
     diaper_funding_source = models.BooleanField()

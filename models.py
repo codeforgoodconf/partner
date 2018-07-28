@@ -2,6 +2,7 @@ from django.db import models
 
 from django.conf import settings
 from phonenumber_field.modelfields import PhoneNumberField
+from django.utils.text import slugify
 
 from partner.util import load_choices
 from partner.fields import (
@@ -9,7 +10,15 @@ from partner.fields import (
     PercentageField,
 )
 
-# Create your models here.
+
+# model.FileField(uploadto=proof_of_agency_status_uh)
+def proof_of_agency_status_uh(instance, filename):
+    return '{}/proof_of_agency_status/{}'.format(slugify(instance.name), filename)
+
+
+# model.FileField(scan_990)
+def scan_990_uh(instance, filename):
+    return '{}/scan_990_uh/{}'.format(slugify(instance.name), filename)
 
 """
 h2 Agency Information

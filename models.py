@@ -283,7 +283,8 @@ class Partner(models.Model):
     agency_types = models.CharField(max_length=2,
                                     choices=AGENCY_TYPES,
                                     **optional)
-    proof_of_agency_status = models.FileField(**optional)  # TODO: add file arguments
+    proof_of_agency_status = models.FileField(upload_to=proof_of_agency_status_uh,
+                                              **optional)
     proof_of_agency_status_type = models.CharField(max_length=CHOICE_LENGTH,
                                                    choices=PROOF_OF_AGENCY_STATUS_TYPE,
                                                    **optional)
@@ -313,7 +314,7 @@ class Partner(models.Model):
 
     founded = RangeIntegerField(min=1800, max=2017,
                                                    **optional)
-    form_990 = models.FileField(**optional)
+    form_990 = models.FileField(upload_to=scan_990_uh, **optional)
     program_name = models.CharField(max_length=NAME_LENGTH,
                                                    **optional)
     program_description = models.CharField(max_length=DESCRIPTION_LENGTH,

@@ -1,0 +1,3 @@
+Thanks for signing up to be a diaper bank partner!
+Click the link below to complete your registration:
+http://localhost:8000/register?id={{partner_id}}

@@ -179,6 +179,13 @@ NAME_LENGTH = 1024
 MEDIUM_LENGTH = 1024
 DESCRIPTION_LENGTH = 4096
 
+# Makes it easy to specify an optional field
+
+optional = {
+    'blank': True,
+    'null': True,
+}
+
 class Partner(models.Model):
 
     DISTRIBUTOR_AGENCY = 'AG'
@@ -269,118 +276,155 @@ class Partner(models.Model):
                              on_delete=models.CASCADE)
 
     # Angency Information
-    name = models.CharField(max_length=2048, null=False, blank=False)
+    name = models.CharField(max_length=2048, **optional)
     distributor_type = models.CharField(max_length=2,
-                                        choices=DISTRIBUTOR_TYPES)
+                                        choices=DISTRIBUTOR_TYPES,
+                                        **optional)
     agency_types = models.CharField(max_length=2,
-                                    choices=AGENCY_TYPES)
-    proof_of_agency_status = models.FileField()  # TODO: add file arguments
+                                    choices=AGENCY_TYPES,
+                                    **optional)
+    proof_of_agency_status = models.FileField(**optional)  # TODO: add file arguments
     proof_of_agency_status_type = models.CharField(max_length=CHOICE_LENGTH,
-                                                   choices=PROOF_OF_AGENCY_STATUS_TYPE)
-    agency_mission = models.CharField(max_length=DESCRIPTION_LENGTH)
-    address_1 = models.CharField(max_length=MEDIUM_LENGTH)
-    address_2 = models.CharField(max_length=MEDIUM_LENGTH)
-    city = models.CharField(max_length=NAME_LENGTH)
-    state = models.CharField(max_length=2, choices=STATES)
-    zip_code = models.CharField(max_length=ZIP_LENGTH)
+                                                   choices=PROOF_OF_AGENCY_STATUS_TYPE,
+                                                   **optional)
+    agency_mission = models.CharField(max_length=DESCRIPTION_LENGTH,
+                                                   **optional)
+    address_1 = models.CharField(max_length=MEDIUM_LENGTH,
+                                                   **optional)
+    address_2 = models.CharField(max_length=MEDIUM_LENGTH,
+                                                   **optional)
+    city = models.CharField(max_length=NAME_LENGTH,
+                                                   **optional)
+    state = models.CharField(max_length=2, choices=STATES,
+                                                   **optional)
+    zip_code = models.CharField(max_length=ZIP_LENGTH,
+                                                   **optional)
 
     # Media Information
-    website = models.URLField()
+    website = models.URLField(**optional)
     facebook = models.CharField(max_length=NAME_LENGTH,
-                                help_text="Facebook page name (DO NOT include the URL)")
+                                help_text="Facebook page name (DO NOT include the URL)",
+                                                   **optional)
     twitter = models.CharField(max_length=NAME_LENGTH,
-                               help_text="Twitter Handle")
+                               help_text="Twitter Handle",
+                                                   **optional)
 
     # Agency Stability
 
-    founded = RangeIntegerField(min=1800, max=2017)
-    form_990 = models.FileField()
-    program_name = models.CharField(max_length=NAME_LENGTH)
-    program_description = models.CharField(max_length=DESCRIPTION_LENGTH)
+    founded = RangeIntegerField(min=1800, max=2017,
+                                                   **optional)
+    form_990 = models.FileField(**optional)
+    program_name = models.CharField(max_length=NAME_LENGTH,
+                                                   **optional)
+    program_description = models.CharField(max_length=DESCRIPTION_LENGTH,
+                                                   **optional)
     # TODO: age (possibly omit)
-    case_management = models.BooleanField()
-    evidence_based = models.BooleanField()
-    evidence_based_description = models.CharField(max_length=DESCRIPTION_LENGTH)
-    program_client_improvement = models.CharField(max_length=DESCRIPTION_LENGTH)
-    diaper_use = models.CharField(max_length=CHOICE_LENGTH, choices=DIAPER_USE)
-    other_diaper_use = models.CharField(max_length=DESCRIPTION_LENGTH)
-    currently_provide_diapers = models.BooleanField()
-    turn_away_child_care = models.BooleanField()
+    case_management = models.NullBooleanField(**optional)
+    evidence_based = models.NullBooleanField(**optional)
+    evidence_based_description = models.CharField(max_length=DESCRIPTION_LENGTH,
+                                                   **optional)
+    program_client_improvement = models.CharField(max_length=DESCRIPTION_LENGTH,
+                                                   **optional)
+    diaper_use = models.CharField(max_length=CHOICE_LENGTH, choices=DIAPER_USE,
+                                                   **optional)
+    other_diaper_use = models.CharField(max_length=DESCRIPTION_LENGTH,
+                                                   **optional)
+    currently_provide_diapers = models.NullBooleanField(**optional)
+    turn_away_child_care = models.NullBooleanField(**optional)
 
     # Program Address
-    program_address1 = models.CharField(max_length=MEDIUM_LENGTH)
-    program_address2 = models.CharField(max_length=MEDIUM_LENGTH)
-    program_city = models.CharField(max_length=NAME_LENGTH)
+    program_address1 = models.CharField(max_length=MEDIUM_LENGTH,
+                                                   **optional)
+    program_address2 = models.CharField(max_length=MEDIUM_LENGTH,
+                                                   **optional)
+    program_city = models.CharField(max_length=NAME_LENGTH,
+                                                   **optional)
     program_state = models.CharField(max_length=CHOICE_LENGTH,
-                                     choices=STATES)
-    program_zip_code = models.CharField(max_length=ZIP_LENGTH)
+                                     choices=STATES,
+                                                   **optional)
+    program_zip_code = models.CharField(max_length=ZIP_LENGTH,
+                                                   **optional)
 
     # Organizational Capacity
 
     max_serve = models.IntegerField(help_text=('Maximum number of people '
-                                               'this organization can serve'))
-    incorporate_plan = models.CharField(max_length=DESCRIPTION_LENGTH)
-    responsible_staff_position = models.BooleanField()
-    storage_space = models.BooleanField()
-    description_of_storage_space = models.CharField(max_length=DESCRIPTION_LENGTH)
-    trusted_pickup = models.BooleanField()
+                                               'this organization can serve'),
+                                                   **optional)
+    incorporate_plan = models.CharField(max_length=DESCRIPTION_LENGTH,
+                                                   **optional)
+    responsible_staff_position = models.NullBooleanField(**optional)
+    storage_space = models.NullBooleanField(**optional)
+    description_of_storage_space = models.CharField(max_length=DESCRIPTION_LENGTH,
+                                                   **optional)
+    trusted_pickup = models.NullBooleanField(**optional)
 
     # Population served
-    incmome_requirement_description = models.BooleanField()
-    serve_income_circumstances = models.BooleanField()
-    income_verification = models.BooleanField()
-    internal_diaper_bank = models.BooleanField()  # TODO: Is db=diaper bank?
-    maac = models.BooleanField()
+    incmome_requirement_description = models.NullBooleanField(**optional)
+    serve_income_circumstances = models.NullBooleanField(**optional)
+    income_verification = models.NullBooleanField(**optional)
+    internal_diaper_bank = models.NullBooleanField(**optional)
+    maac = models.NullBooleanField(**optional)
 
     # Ethnic composition of those served
-    population_black = PercentageField()
-    population_white = PercentageField()
-    population_hispanic = PercentageField()
-    population_asian = PercentageField()
-    population_american_indian = PercentageField()
-    population_island = PercentageField()
-    population_multi_racial = PercentageField()
-    population_other = PercentageField()
+    population_black = PercentageField(**optional)
+    population_white = PercentageField(**optional)
+    population_hispanic = PercentageField(**optional)
+    population_asian = PercentageField(**optional)
+    population_american_indian = PercentageField(**optional)
+    population_island = PercentageField(**optional)
+    population_multi_racial = PercentageField(**optional)
+    population_other = PercentageField(**optional)
 
     # Zips served
-    zip_codes_served = models.CharField(max_length=MEDIUM_LENGTH)
+    zip_codes_served = models.CharField(max_length=MEDIUM_LENGTH,
+                                        **optional)
 
     # Poverty Information
-    at_fpl_or_below = PercentageField()
-    above_1_2_times_fpl = PercentageField()
-    greater_2_times_fpl = PercentageField()
-    poverty_unknown = PercentageField()
+    at_fpl_or_below = PercentageField(**optional)
+    above_1_2_times_fpl = PercentageField(**optional)
+    greater_2_times_fpl = PercentageField(**optional)
+    poverty_unknown = PercentageField(**optional)
 
     # Ages served
-    ages_served = models.CharField(max_length=MEDIUM_LENGTH)
+    ages_served = models.CharField(max_length=MEDIUM_LENGTH,
+                                        **optional)
 
     # Executive Director
-    executive_director_name = models.CharField(max_length=MEDIUM_LENGTH)
-    executive_director_phone = PhoneNumberField()
-    executive_director_email = models.EmailField()
+    executive_director_name = models.CharField(max_length=MEDIUM_LENGTH,
+                                        **optional)
+    executive_director_phone = PhoneNumberField(**optional)
+    executive_director_email = models.EmailField(**optional)
 
     # Program Contact Person
-    program_contact_name = models.CharField(max_length=MEDIUM_LENGTH)
-    program_contact_phone = PhoneNumberField()
-    program_contact_mobile = PhoneNumberField()
-    program_contact_email = models.EmailField()
+    program_contact_name = models.CharField(max_length=MEDIUM_LENGTH,
+                                        **optional)
+    program_contact_phone = PhoneNumberField(**optional)
+    program_contact_mobile = PhoneNumberField(**optional)
+    program_contact_email = models.EmailField(**optional)
 
     # Diaper Pickup Person
     pick_up_method = models.CharField(max_length=CHOICE_LENGTH,
-                                      choices=PICK_UP_METHODS)
-    pick_up_contact_name = models.CharField(max_length=MEDIUM_LENGTH)
-    pick_up_contact_phone = PhoneNumberField()
-    pick_up_contact_email = models.EmailField()
+                                      choices=PICK_UP_METHODS,
+                                        **optional)
+    pick_up_contact_name = models.CharField(max_length=MEDIUM_LENGTH,
+                                        **optional)
+    pick_up_contact_phone = PhoneNumberField(**optional)
+    pick_up_contact_email = models.EmailField(**optional)
 
     # Agency Distribution Information
-    distribution_times = models.CharField(max_length=MEDIUM_LENGTH)
-    new_client_times = models.CharField(max_length=MEDIUM_LENGTH)
-    more_docs_required = models.CharField(max_length=MEDIUM_LENGTH)
+    distribution_times = models.CharField(max_length=MEDIUM_LENGTH,
+                                        **optional)
+    new_client_times = models.CharField(max_length=MEDIUM_LENGTH,
+                                        **optional)
+    more_docs_required = models.CharField(max_length=MEDIUM_LENGTH,
+                                        **optional)
 
     # Sources of Funding
     funding_sources = models.CharField(max_length=CHOICE_LENGTH,
-                                         choices=FUNDING_SOURCES)
+                                         choices=FUNDING_SOURCES,
+                                        **optional)
     sources_of_diapers = models.CharField(max_length=CHOICE_LENGTH,
-                                            choices=DIAPER_SOURCES)
-    diaper_budget = models.BooleanField()
-    diaper_funding_source = models.BooleanField()
+                                            choices=DIAPER_SOURCES,
+                                        **optional)
+    diaper_budget = models.NullBooleanField(**optional)
+    diaper_funding_source = models.NullBooleanField(**optional)

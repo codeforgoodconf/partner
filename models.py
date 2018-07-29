@@ -18,6 +18,13 @@ STATES_PATH = os.path.join(HERE, 'states.txt')
 
 STATES = load_choices(STATES_PATH, True)
 
+PARTNER_PENDING = 'pending'
+PARTNER_APPROVED = 'approved'
+PARTNER_STATUS_OPTIONS = (
+    (PARTNER_PENDING, 'Pending'),
+    (PARTNER_APPROVED, 'Approved')
+)
+
 # model.FileField(uploadto=proof_of_agency_status_uh)
 def proof_of_agency_status_uh(instance, filename):
     return '{}/proof_of_agency_status/{}'.format(slugify(instance.name), filename)
@@ -272,10 +279,13 @@ class Partner(models.Model):
         (DS_OTHER, 'Other'),
     )
 
-    user = models.ForeignKey(User, blank=False, null=False,
-                             on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, **optional)
 
     # Angency Information
+    diaper_bank_id = models.IntegerField(**optional)
+    email = models.EmailField(**optional)
+    status = models.CharField(choices=PARTNER_STATUS_OPTIONS, default=PARTNER_PENDING,
+                              max_length=MEDIUM_LENGTH)
     name = models.CharField(max_length=2048, **optional)
     distributor_type = models.CharField(max_length=2,
                                         choices=DISTRIBUTOR_TYPES,

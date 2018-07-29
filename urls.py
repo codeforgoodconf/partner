@@ -23,6 +23,8 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('schema', schema_view),
-    path('send-invite', views.send_invite, name='send_invite'),
+    path('invite-partner', views.invite, name='send_invite'),
     path('register', views.register, name='register'),
+    path('review', views.review, name='review_partner'),
+    path('approve-partner', views.approve, name='approve'),
 ]
